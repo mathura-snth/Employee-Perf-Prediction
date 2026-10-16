@@ -17,3 +17,19 @@ def encode_features(df, target="Performance_Score"):
     X["Education_Level"] = X["Education_Level"].map(EDUCATION_ORDER)
     X["Resigned"] = X["Resigned"].astype(int)
     return pd.get_dummies(X, columns=ONE_HOT, dtype=int)
+
+
+def select_feature_sets(X, with_job_title=False):
+    """Return the two feature sets compared in the project.
+
+    Selection uses no information from the target, so it can safely be done
+    before the train/test split.
+    - Hire_Year is dropped: it is redundant with Years_At_Company (corr -0.99).
+    - Job_Title dummies are dropped by default (flat on their own, and they
+      decode the salary). with_job_title=True keeps them, for the ablation.
+    - "salary" keeps Monthly_Salary, "no_salary" removes it.
+    """
+    X = X.drop(columns=["Hire_Year"])
+    if not with_job_title:
+        X = X.drop(columns=[c for c in X.columns if c.startswith("Job_Title_")])
+    return {"salary": X, "no_salary": X.drop(columns=["Monthly_Salary"])}
