@@ -5,8 +5,7 @@ ONE_HOT = ["Department", "Gender", "Job_Title"]
 
 
 def encode_features(df, target="Performance_Score"):
-    """Return a fully numeric feature matrix (target and Employee_ID removed).
-
+    """
     - Education_Level: ordinal, the order is real
     - Department, Gender, Job_Title: one-hot, they have no order
     - Hire_Date: parsed as a date, only the year is kept
@@ -20,8 +19,7 @@ def encode_features(df, target="Performance_Score"):
 
 
 def select_feature_sets(X, with_job_title=False):
-    """Return the two feature sets compared in the project.
-
+    """
     Selection uses no information from the target, so it can safely be done
     before the train/test split.
     - Hire_Year is dropped: it is redundant with Years_At_Company (corr -0.99).

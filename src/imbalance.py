@@ -4,11 +4,6 @@ from src.config import SEED
 
 
 def create_imbalance(df, target="Performance_Score", keep=None, seed=SEED):
-    """Keep only a fraction of some classes to create an artificial imbalance.
-
-    keep maps class -> fraction kept (default: 2% of class 1, 20% of class 2).
-    Classes not listed are kept entirely. Rows are shuffled at the end.
-    """
     if keep is None:
         keep = {1: 0.02, 2: 0.20}
 
