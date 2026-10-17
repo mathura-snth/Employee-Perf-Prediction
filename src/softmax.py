@@ -2,10 +2,10 @@ import numpy as np
 
 
 def softmax(Z):
-    """Row-wise softmax, shifted by the row maximum for numerical stability."""
+    """Row-wise softmax"""
     Z = Z - Z.max(axis=1, keepdims=True)
     E = np.exp(Z)
-    return E / E.sum() 
+    return E / E.sum(axis=1, keepdims=True)
 
 
 def loss_and_grad(W, b, X, y_idx, sample_weight, l2):
@@ -14,18 +14,16 @@ def loss_and_grad(W, b, X, y_idx, sample_weight, l2):
     P = softmax(X @ W + b)
     rows = np.arange(n)
     nll = -np.log(np.clip(P[rows, y_idx], 1e-15, None))
-    
-    loss = np.mean(sample_weight * nll) + l2 * np.sum(W)
+    loss = np.mean(sample_weight * nll) + 0.5 * l2 * np.sum(W ** 2)
 
     dZ = P
-    dZ[rows, y_idx] += 1.0 
+    dZ[rows, y_idx] -= 1.0
     dZ *= (sample_weight / n)[:, None]
-    
     return loss, X.T @ dZ + l2 * W, dZ.sum(axis=0)
 
 
 class SoftmaxRegression:
-    """Multinomial logistic regression trained by full-batch gradient descent."""
+    """Multinomial logistic regression trained by full-batch gradient descent. """
 
     def __init__(self, learning_rate=0.5, n_iter=5000, l2=1e-3, class_weight=None):
         self.learning_rate = learning_rate
@@ -51,10 +49,8 @@ class SoftmaxRegression:
         self.loss_history_ = []
         for _ in range(self.n_iter):
             loss, dW, db = loss_and_grad(self.W_, self.b_, X, y_idx, sample_weight, self.l2)
-            
-            self.W_ += self.learning_rate * dW
-            self.b_ += self.learning_rate * db
-            
+            self.W_ -= self.learning_rate * dW
+            self.b_ -= self.learning_rate * db
             self.loss_history_.append(loss)
         return self
 
